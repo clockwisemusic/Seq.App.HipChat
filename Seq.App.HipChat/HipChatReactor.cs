@@ -48,6 +48,12 @@ namespace Seq.App.HipChat
         public string HipChatBaseUrl { get; set; }
 
         [SeqAppSetting(
+        DisplayName = "Message Template",
+        HelpText = "Default will be: \"<strong>{level}</strong> {message}\nAvailable Placeholders are: {level} for the log-level of the event, {message} for a message describing the event and {time} for a timestamp of the event.",
+        IsOptional = true)]
+        public string MessageTemplate { get; set; }
+
+        [SeqAppSetting(
         HelpText = "Admin or notification token (get it from HipChat.com admin).")]
         public string Token { get; set; }
 
@@ -92,7 +98,11 @@ namespace Seq.App.HipChat
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                var msg = new StringBuilder("<strong>" + evt.Data.Level + ":</strong> " + evt.Data.RenderedMessage);
+                var template = MessageTemplate;
+                if (string.IsNullOrWhiteSpace(template))
+                    template = "<strong>{level}</strong> {message}";
+
+                var msg = new StringBuilder(template.Replace("{level}", evt.Data.Level.ToString()).Replace("{message}", evt.Data.RenderedMessage).Replace("{time}", evt.TimestampUtc.ToString("yyyy-MM-dd hh:mm:ss")));
                 if (msg.Length > 1000)
                 {
                     msg.Length = 1000;
