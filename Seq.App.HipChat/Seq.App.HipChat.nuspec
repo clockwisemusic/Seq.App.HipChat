@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>Seq.App.HipChat</id>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
     <authors>Kristoffer Jansson</authors>
     <owners>Kristoffer Jansson</owners>
     <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
     <projectUrl>https://github.com/stayhard/Seq.App.HipChat</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>HipChat Integration for Seq, with modifications by P+M</description>
-    <releaseNotes>See https://github.com/stayhard/Seq.App.HipChat for changes.</releaseNotes>
+    <releaseNotes>See https://github.com/rocklan/Seq.App.HipChat for changes.</releaseNotes>
     <copyright>Copyright Stayhard AB 2014</copyright>
     <tags>seq-app seq serilog event hipchat</tags>
     <dependencies>

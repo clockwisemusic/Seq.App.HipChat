@@ -72,6 +72,12 @@ namespace Seq.App.HipChat
         IsOptional = true)]
         public bool Notify { get; set; }
 
+        [SeqAppSetting(
+        DisplayName = "Proxy Server",
+        HelpText = "Proxy server to be used when making HTTPS request to hipchat api, uses default credentials",
+        IsOptional = true)]
+        public string ProxyServer { get; set; }
+
         public void On(Event<LogEventData> evt)
         {
             var previousContext = SynchronizationContext.Current;
@@ -86,18 +92,12 @@ namespace Seq.App.HipChat
             }
         }
 
+
+
         async Task Dispatch(Event<LogEventData> evt)
         {
-            using (var client = new HttpClient())
+            using (var client = getHttpClient())
             {
-                var url = string.IsNullOrWhiteSpace(HipChatBaseUrl)
-                    ? DefaultHipChatBaseUrl
-                    : HipChatBaseUrl;
-                client.BaseAddress = new Uri(url);
-
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
                 var template = MessageTemplate;
                 if (string.IsNullOrWhiteSpace(template))
                     template = "<strong>{level}</strong> {message}";
@@ -142,5 +142,41 @@ namespace Seq.App.HipChat
                 }
             }
         }
+
+        private HttpClient getHttpClient()
+        {
+            var url = string.IsNullOrWhiteSpace(HipChatBaseUrl)
+                ? DefaultHipChatBaseUrl
+                : HipChatBaseUrl;
+
+            HttpClient client;
+
+            if (!string.IsNullOrWhiteSpace(ProxyServer))
+            {
+                WebProxy proxy = new WebProxy(ProxyServer, false)
+                {
+                    UseDefaultCredentials = true
+                };
+                var httpClientHandler = new HttpClientHandler()
+                {
+                    Proxy = proxy,
+                    PreAuthenticate = true,
+                    UseDefaultCredentials = true,
+                };
+                client = new HttpClient(handler: httpClientHandler);
+            }
+            else
+            {
+                client = new HttpClient();
+            }
+
+            client.BaseAddress = new Uri(url);
+
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            return client;
+        }
+
     }
 }
